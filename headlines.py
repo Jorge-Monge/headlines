@@ -10,9 +10,9 @@ RSS_FEEDS = {'bbc': "http://feeds.bbci.co.uk/news/rss.xml",
              'fox': 'http://feeds.foxnews.com/foxnews/latest',
              'elpais_espana': 'http://ep00.epimg.net/rss/elpais/portada.xml'}
 
-@app.route("/")
+@app.route("/", methods=['GET', 'POST'])
 def get_news():
-    query = request.args.get("news_provider")
+    query = request.form.get("news_provider")
     if not query or query.lower() not in RSS_FEEDS:
         news_provider = "bbc"
     else:
