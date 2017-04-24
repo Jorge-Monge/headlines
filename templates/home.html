@@ -1,13 +1,21 @@
 <html>
   <head>
     <title>Headlines</title>
-    <form>
-      <input type="text" name="news_provider" placeholder="search" />
-      <input type="submit" value="Submit" />
-    </form>
   </head>
   <body>
-    <h1>Headlines</h1>
+    <h1>News and Weather</h1>
+    <h2>Current Weather</h2>
+    <form>
+      <input type="text" name="city" placeholder="Enter a city name">
+      <input type="submit" value="Submit">
+    </form>
+    <p>City: <b>{{weather.city}}</b></p>
+    <p>{{weather.description}} | {{weather.temperature}}&#8451;</p>
+    <h2>Headlines</h2>
+    <form>
+      <input type="text" name="news_provider" placeholder="Enter a news provider">
+      <input type="submit" value="Submit">
+    </form>
     {% for article in articles %}
 	    <a href={{article.link}}><b>{{article.title}}</b></a><br/>  
 	    <i>{{article.published}}</i><br/>  
