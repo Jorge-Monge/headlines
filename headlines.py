@@ -1,6 +1,7 @@
 from flask import Flask
 from flask import render_template
 from flask import request
+import requests
 import feedparser
 import json
 import urllib2
@@ -18,21 +19,33 @@ DEFAULTS = {'news_provider': 'bbc',
 
 
 WEATHER_URL = "http://api.openweathermap.org/data/2.5/weather?q={}&units=metric&APPID=9f3175069568b53bc97e04575bb8cdcb"
-    
+
+last_city = None
+last_news_provider = None
 
 
 @app.route("/")
 def home():
-    # Get customized headlines, based on user iniput or default
+    global last_news_provider
+    global last_city
+    # Get customized headlines, based on user input or default
     news_provider = request.args.get("news_provider")
     if not news_provider:
-        news_provider = DEFAULTS['news_provider']
+        if last_news_provider:
+            news_provider = last_news_provider
+        else:
+            news_provider = DEFAULTS['news_provider']
     articles = get_news(news_provider)
+    last_news_provider = news_provider
     # Get customized weather based on user input or default
     city = request.args.get('city')
     if not city:
-        city = DEFAULTS['city']
+        if last_city:
+            city = last_city
+        else:
+            city = DEFAULTS['city']
     weather = get_weather(city)
+    last_city = city
 
     return render_template("home.html", articles = articles, weather = weather)
 
@@ -47,13 +60,21 @@ def get_news(query):
 def get_weather(query):
     query = urllib.quote(query)
     url = WEATHER_URL.format(query)
-    data = urllib2.urlopen(url).read()
-    parsed = json.loads(data)
-    weather = None
-    if parsed.get('weather'):
-        weather = {'description': parsed['weather'][0]['description'],
-                   'temperature': parsed['main']['temp'],
-                   'city': parsed['name']}
+    #data = urllib2.urlopen(url).read()
+    try:
+        data = requests.get(url).text
+        parsed = json.loads(data)
+        if parsed.get('weather'):
+            weather = {'description': parsed['weather'][0]['description'],
+                       'temperature': parsed['main']['temp'],
+                       'city': parsed['name']}
+        else:
+            weather = {'description': 'Not Available',
+                       'temperature': 'Not Available',
+                       'city': 'Not Available'}
+    except:
+        weather = None
+
     return weather
     
           
